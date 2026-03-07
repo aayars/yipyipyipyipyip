@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Daily PostgreSQL backup for yip.yip.yip.yip.yip.computer
+# Dumps to data/backups/, prunes backups older than 7 days
+#
+# Scope: PostgreSQL only. Redis is ephemeral cache (reconstructed from PG).
+# Media files are cleaned after 7 days by tootctl, so on-disk backup of PG
+# is sufficient for this ephemeral instance.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+BACKUP_DIR="$PROJECT_DIR/data/backups"
+DATE="$(date +%Y%m%d)"
+DUMP_FILE="$BACKUP_DIR/mastodon-${DATE}.dump"
+
+mkdir -p "$BACKUP_DIR"
+
+echo "==> Backing up database to $DUMP_FILE"
+cd "$PROJECT_DIR"
+docker compose exec -T db pg_dump -U mastodon -Fc mastodon > "$DUMP_FILE"
+
+echo "==> Pruning backups older than 7 days"
+find "$BACKUP_DIR" -name "mastodon-*.dump" -mtime +7 -delete
+
+echo "==> Current backups:"
+ls -lh "$BACKUP_DIR"/mastodon-*.dump 2>/dev/null || echo "  (none)"

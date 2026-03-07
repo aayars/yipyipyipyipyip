@@ -1,0 +1,111 @@
+services:
+  # nginx uses host networking to bind ports 80/443 directly.
+  # Web and streaming services publish to 127.0.0.1, so nginx proxies via localhost.
+  nginx:
+    image: nginx:alpine
+    network_mode: host
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/var/www/static:ro
+      - certbot-certs:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot:ro
+    restart: unless-stopped
+    depends_on:
+      - web
+      - streaming
+
+  certbot:
+    image: certbot/dns-route53
+    env_file: .env.certbot
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done'
+    restart: unless-stopped
+
+  web:
+    image: tootsuite/mastodon:v4.5.7
+    env_file: .env.production
+    command: bundle exec puma -C config/puma.rb
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - mastodon-system:/opt/mastodon/public/system
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+
+  streaming:
+    image: tootsuite/mastodon-streaming:v4.5.7
+    env_file: .env.production
+    ports:
+      - "127.0.0.1:4000:4000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+
+  sidekiq:
+    image: tootsuite/mastodon:v4.5.7
+    env_file: .env.production
+    command: bundle exec sidekiq
+    volumes:
+      - mastodon-system:/opt/mastodon/public/system
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep '[s]idekiq' || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:17-alpine
+    shm_size: 256mb
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_USER: mastodon
+      POSTGRES_DB: mastodon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "mastodon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+  mastodon-system:
+  certbot-webroot:
+  certbot-certs:

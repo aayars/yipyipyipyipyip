@@ -1,0 +1,5 @@
+.env.production
+.env.certbot
+.env.ehsre-admin
+data/
+*.dump
