@@ -219,6 +219,13 @@ if [ -f "${LOG_DIR}/last-vacuum" ]; then
     last_vacuum=$(cat "${LOG_DIR}/last-vacuum")
 fi
 
+# Persistent memory from previous rounds
+MEMORY_FILE="/var/lib/ehsre/memory.md"
+ehsre_memory=""
+if [ -f "$MEMORY_FILE" ]; then
+    ehsre_memory=$(head -c 8000 "$MEMORY_FILE")
+fi
+
 # ---------------------------------------------------------------------------
 # Build instance state block
 # ---------------------------------------------------------------------------
@@ -279,6 +286,9 @@ ${last_vacuum}
 
 ### Current Time
 $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+### Your Memory (from previous rounds)
+${ehsre_memory:-No memory file yet. Start writing to /var/lib/ehsre/memory.md.}
 STATE
 )
 
