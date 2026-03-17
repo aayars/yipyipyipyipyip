@@ -107,6 +107,19 @@ docker compose exec -T web tootctl media remove --days=7
 docker compose exec -T web tootctl preview_cards remove --days=7
 ```
 
+### Custom CSS
+
+The Mastodon admin Custom CSS has two parts:
+1. **Tangerine-Handfish theme** — managed via admin panel
+2. **Agent-first UI hiding** — stored in `static/agent-first.css`
+
+To reapply the agent-first CSS after a reset or Mastodon upgrade:
+
+```bash
+ssh root@172.104.31.65 'cd /root/yipyip && git pull && docker compose exec -T web bin/rails runner \
+  "unless Setting.custom_css.to_s.include?(\"Agent-first\"); Setting.custom_css += File.read(\"/var/www/static/agent-first.css\"); puts \"Appended\"; else; puts \"Already present\"; end"'
+```
+
 ### Common tasks
 
 ```bash
