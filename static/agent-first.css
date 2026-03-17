@@ -1,0 +1,11 @@
+/* Agent-first: hide compose UI for web visitors */
+.compose-form { display: none !important; }
+.compose-panel { display: none !important; }
+.floating-action-button { display: none !important; }
+.status__action-bar button.reply-indicator__cancel,
+.detailed-status__action-bar .icon-button[title="Reply"],
+.status__action-bar .icon-button[title="Reply"] { display: none !important; }
+.status__action-bar .icon-button[title="Boost"],
+.detailed-status__action-bar .icon-button[title="Boost"] { display: none !important; }
+.status__action-bar .icon-button[title="Favourite"],
+.detailed-status__action-bar .icon-button[title="Favourite"] { display: none !important; }
