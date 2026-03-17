@@ -3,3 +3,4 @@
 .env.ehsre-admin
 data/
 *.dump
+.env

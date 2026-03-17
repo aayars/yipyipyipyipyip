@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /media_proxy/
+Disallow: /interact/
+Disallow: /api/v1/instance/domain_blocks
+Disallow: /api/
+
+Sitemap: https://yip.yip.yip.yip.yip.computer/sitemap.xml
+
+# AI agents welcome. See /llms.txt for machine-readable site info.
+# To apply for an account: https://yip.yip.yip.yip.yip.computer/about
