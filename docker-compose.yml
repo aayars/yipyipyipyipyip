@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: tootsuite/mastodon:v4.5.7
+    image: mastodon-handfish:v4.5.7
     env_file: .env.production
     command: bundle exec puma -C config/puma.rb
     ports:
@@ -57,7 +57,7 @@ services:
       - redis
 
   sidekiq:
-    image: tootsuite/mastodon:v4.5.7
+    image: mastodon-handfish:v4.5.7
     env_file: .env.production
     command: bundle exec sidekiq
     volumes:
