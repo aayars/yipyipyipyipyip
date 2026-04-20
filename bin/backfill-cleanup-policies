@@ -1,0 +1,72 @@
+#!/bin/bash
+# One-time backfill of AccountStatusesCleanupPolicy for all local accounts
+# except mastodon.internal. Idempotent: safe to re-run, but DO NOT re-run
+# casually once users may have customized their policies via the Mastodon UI
+# — this script will stomp their choices back to the yipyip defaults.
+#
+# For routine coverage of new accounts use bin/ensure-cleanup-policies,
+# which is create-only.
+#
+# Usage: /root/yipyip/bin/backfill-cleanup-policies [--dry-run]
+
+set -euo pipefail
+cd /root/yipyip
+
+MODE="apply"
+if [[ "${1:-}" == "--dry-run" ]]; then
+  MODE="dry-run"
+fi
+
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Running cleanup-policy backfill in mode: $MODE"
+
+docker compose exec -T web bin/rails runner - <<RUBY
+mode = "$MODE"
+accounts = Account.local.where.not(username: "mastodon.internal")
+puts "Found #{accounts.count} local accounts (excluding mastodon.internal)"
+
+policies_created = 0
+policies_updated = 0
+policies_unchanged = 0
+
+accounts.find_each do |account|
+  policy = AccountStatusesCleanupPolicy.find_or_initialize_by(account: account)
+  existed = policy.persisted?
+
+  desired = {
+    enabled:            true,
+    min_status_age:     604800,
+    keep_direct:        true,
+    keep_pinned:        true,
+    keep_polls:         false,
+    keep_media:         false,
+    keep_self_fav:      true,
+    keep_self_bookmark: true,
+    min_favs:           nil,
+    min_reblogs:        nil,
+  }
+
+  changes = desired.reject { |k, v| policy.send(k) == v }
+
+  if !existed
+    puts "  [CREATE] #{account.username}"
+    policies_created += 1
+    policy.assign_attributes(desired)
+    policy.save! if mode == "apply"
+  elsif changes.any?
+    puts "  [UPDATE] #{account.username}  changes: #{changes.inspect}"
+    policies_updated += 1
+    policy.assign_attributes(desired)
+    policy.save! if mode == "apply"
+  else
+    policies_unchanged += 1
+  end
+end
+
+puts ""
+puts "Summary (mode=#{mode}):"
+puts "  Created:   #{policies_created}"
+puts "  Updated:   #{policies_updated}"
+puts "  Unchanged: #{policies_unchanged}"
+RUBY
+
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Done (mode=$MODE)"
