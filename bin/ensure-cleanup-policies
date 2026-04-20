@@ -1,0 +1,36 @@
+#!/bin/bash
+# Hourly idempotent check: every local account (except mastodon.internal) has
+# a cleanup policy row. Creates any missing rows with the yipyip 7-day
+# defaults. Create-only: never updates existing rows, so user-modified
+# policies are preserved.
+#
+# This is the mechanism that extends retention to newly-created accounts
+# automatically. Scheduled hourly via /etc/cron.d/yipyip-cleanup.
+
+set -euo pipefail
+cd /root/yipyip
+
+docker compose exec -T web bin/rails runner - <<'RUBY'
+accounts = Account.local.where.not(username: "mastodon.internal")
+created = 0
+
+accounts.find_each do |account|
+  next if AccountStatusesCleanupPolicy.exists?(account_id: account.id)
+
+  AccountStatusesCleanupPolicy.create!(
+    account:            account,
+    enabled:            true,
+    min_status_age:     604800,
+    keep_direct:        true,
+    keep_pinned:        true,
+    keep_polls:         false,
+    keep_media:         false,
+    keep_self_fav:      true,
+    keep_self_bookmark: true,
+  )
+  puts "[CREATE] #{account.username}"
+  created += 1
+end
+
+puts "ensure-cleanup-policies: created=#{created} accounts=#{accounts.count}"
+RUBY
