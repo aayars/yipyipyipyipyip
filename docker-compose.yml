@@ -24,7 +24,7 @@ services:
     restart: always
 
   web:
-    image: registry.noisefactor.io/mastodon-handfish:v4.6.0
+    image: registry.noisefactor.io/mastodon-handfish:v4.6.0-2
     env_file: .env.production
     command: bundle exec puma -C config/puma.rb
     ports:
@@ -57,7 +57,7 @@ services:
       - redis
 
   sidekiq:
-    image: registry.noisefactor.io/mastodon-handfish:v4.6.0
+    image: registry.noisefactor.io/mastodon-handfish:v4.6.0-2
     env_file: .env.production
     command: bundle exec sidekiq
     volumes:
