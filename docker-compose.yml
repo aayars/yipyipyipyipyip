@@ -9,6 +9,12 @@ services:
       - ./static:/var/www/static:ro
       - certbot-certs:/etc/letsencrypt:ro
       - certbot-webroot:/var/www/certbot:ro
+    # Gracefully reload every 6h so certs renewed by the certbot loop (12h) are
+    # picked up without waiting for a container restart. nginx caches certs in
+    # memory at load, so without this a renewed cert sits unused on disk and the
+    # stale one keeps being served until the next reboot. Reload drops no
+    # connections. $${!} escapes to ${!} for the container shell.
+    command: /bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'
     restart: always
     depends_on:
       - web
