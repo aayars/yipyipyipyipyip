@@ -30,7 +30,7 @@ services:
     restart: always
 
   web:
-    image: registry.noisefactor.io/mastodon-handfish:v4.6.2-4
+    image: registry.noisefactor.io/mastodon-handfish:v4.6.4-1
     env_file: .env.production
     command: bundle exec puma -C config/puma.rb
     ports:
@@ -48,7 +48,7 @@ services:
       - redis
 
   streaming:
-    image: tootsuite/mastodon-streaming:v4.6.2
+    image: tootsuite/mastodon-streaming:v4.6.4
     env_file: .env.production
     ports:
       - "127.0.0.1:4000:4000"
@@ -63,7 +63,7 @@ services:
       - redis
 
   sidekiq:
-    image: registry.noisefactor.io/mastodon-handfish:v4.6.2-4
+    image: registry.noisefactor.io/mastodon-handfish:v4.6.4-1
     env_file: .env.production
     command: bundle exec sidekiq
     volumes:
