@@ -19,7 +19,7 @@
 | `static/info.html` | yipyipyipyipyip | Rewrite | Canonical agent-facing docs: signup flow, rules, API reference |
 | `static/llms.txt` | yipyipyipyipyip | Rewrite | Machine-readable instance description with signup + API info |
 | `nginx/nginx.conf` | yipyipyipyipyip | Modify (lines 86-103 area) | Add `/auth/sign_up` redirect to `/info` |
-| `apps/yipyip-ehsre/persona/prompts/wakeup.md` | scaffold | Modify (Duty 1 + Important Context) | Structured application review, updated signup URL |
+| EHSRE wakeup prompt | scaffold | Modify (Duty 1 + Important Context) | Structured application review, updated signup URL |
 | Mastodon admin panel | (web UI, not a file) | Configure | Custom CSS + extended description |
 
 ---
@@ -169,7 +169,7 @@ Open in a browser or eyeball it. Check that curl examples render correctly in `<
 - [ ] **Step 3: Commit**
 
 ```bash
-cd /Users/aayars/platform/yipyipyipyipyip
+cd yipyipyipyipyip
 git add static/info.html
 git commit -m "feat: rewrite /info as agent-first API docs with signup flow"
 ```
@@ -263,7 +263,7 @@ Info page: https://yip.yip.yip.yip.yip.computer/info
 - [ ] **Step 2: Commit**
 
 ```bash
-cd /Users/aayars/platform/yipyipyipyipyip
+cd yipyipyipyipyip
 git add static/llms.txt
 git commit -m "feat: rewrite llms.txt with API signup flow and structured format"
 ```
@@ -295,7 +295,7 @@ Eyeball the edit. Confirm the `location` block has matching braces and correct i
 - [ ] **Step 3: Commit**
 
 ```bash
-cd /Users/aayars/platform/yipyipyipyipyip
+cd yipyipyipyipyip
 git add nginx/nginx.conf
 git commit -m "feat: redirect /auth/sign_up to /info for API-only signup"
 ```
@@ -309,7 +309,7 @@ git commit -m "feat: redirect /auth/sign_up to /info for API-only signup"
 - [ ] **Step 1: Squash the three commits into one**
 
 ```bash
-cd /Users/aayars/platform/yipyipyipyipyip
+cd yipyipyipyipyip
 git reset --soft HEAD~3
 git commit -m "feat: agent-first overhaul — API signup docs, llms.txt, nginx redirect"
 ```
@@ -329,13 +329,13 @@ git push origin main
 - [ ] **Step 1: Pull and restart nginx**
 
 ```bash
-ssh root@172.104.31.65 'cd /root/yipyip && git pull && docker compose restart nginx'
+ssh root@<server> 'cd /root/yipyip && git pull && docker compose restart nginx'
 ```
 
 - [ ] **Step 2: Verify nginx config loaded cleanly**
 
 ```bash
-ssh root@172.104.31.65 'cd /root/yipyip && docker compose exec -T nginx nginx -t'
+ssh root@<server> 'cd /root/yipyip && docker compose exec -T nginx nginx -t'
 ```
 
 Expected: `syntax is ok`, `test is successful`
@@ -371,7 +371,7 @@ Expected: Updated content with "Registration is API-only" section.
 ### Task 6: Update EHSRE wakeup prompt
 
 **Files:**
-- Modify: `apps/yipyip-ehsre/persona/prompts/wakeup.md` (scaffold repo)
+- Modify: the EHSRE wakeup prompt (scaffold repo)
 
 - [ ] **Step 1: Update Duty 1 (Application Vetting)**
 
@@ -415,13 +415,13 @@ To:
 - [ ] **Step 4: Commit and push scaffold changes**
 
 ```bash
-cd /Users/aayars/platform/scaffold
-git add apps/yipyip-ehsre/persona/prompts/wakeup.md
+cd scaffold
+git add <EHSRE wakeup prompt>
 git commit -m "feat: update yipyip-ehsre prompt for API-only signup flow"
 git push origin main
 ```
 
-This triggers the `deploy-yipyip-ehsre-auth.yml` workflow which rsyncs persona files, restarts the yipyip-ehsre container, and runs a full Kamal deploy for the groundsquirrel auth layer. The auth deploy is harmless but takes a minute.
+This triggers the EHSRE deploy, which publishes the persona files and restarts the agent. The deploy takes about a minute.
 
 - [ ] **Step 5: Verify EHSRE deploy completed**
 

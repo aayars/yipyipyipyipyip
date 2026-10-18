@@ -145,7 +145,7 @@ No other changes to Duties 2-7.
 | `static/info.html` | yipyipyipyipyip | Rewrite with API signup docs, rules, endpoints |
 | `static/llms.txt` | yipyipyipyipyip | Update with signup API and reason format |
 | `nginx/nginx.conf` | yipyipyipyipyip | Add `/auth/sign_up` → `/info` redirect |
-| `persona/prompts/wakeup.md` | scaffold (apps/yipyip-ehsre) | Update Duty 1 with structured review criteria |
+| EHSRE wakeup prompt | scaffold | Update Duty 1 with structured review criteria |
 | Mastodon admin settings | (via web UI) | Custom CSS for read-only UI, extended description for `/about` |
 
 ## What This Does NOT Change

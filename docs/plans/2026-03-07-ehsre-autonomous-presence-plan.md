@@ -8,7 +8,7 @@
 
 **Tech Stack:** Bash, Claude CLI, Mastodon API, `tootctl`, `curl`, `jq`, AWS SES (via `sendmail`/`curl`)
 
-**Server:** `172.104.31.65` (root SSH), app dir `/root/yipyip`
+**Server:** the yipyip server (root SSH), app dir `/root/yipyip`
 
 **Design doc:** `docs/plans/2026-03-07-ehsre-autonomous-presence-design.md`
 
@@ -22,14 +22,14 @@
 **Step 1: SSH to server and install Claude CLI**
 
 ```bash
-ssh root@172.104.31.65
+ssh root@<server>
 curl -fsSL https://claude.ai/install.sh | sh
 ```
 
 **Step 2: Verify installation**
 
 ```bash
-ssh root@172.104.31.65 "claude --version"
+ssh root@<server> "claude --version"
 ```
 
 Expected: Version string output (e.g., `claude 1.x.x`)
@@ -37,7 +37,7 @@ Expected: Version string output (e.g., `claude 1.x.x`)
 **Step 3: Authenticate Claude CLI**
 
 ```bash
-ssh root@172.104.31.65
+ssh root@<server>
 claude login
 ```
 
@@ -46,7 +46,7 @@ Follow the authentication flow. This is interactive — needs to be done once ma
 **Step 4: Verify Claude can run headless**
 
 ```bash
-ssh root@172.104.31.65 'claude -p "Say hello" --output-format json 2>/dev/null | jq .result'
+ssh root@<server> 'claude -p "Say hello" --output-format json 2>/dev/null | jq .result'
 ```
 
 Expected: JSON output containing a greeting.
@@ -54,7 +54,7 @@ Expected: JSON output containing a greeting.
 **Step 5: Install jq (needed for telemetry parsing)**
 
 ```bash
-ssh root@172.104.31.65 "apt-get install -y jq"
+ssh root@<server> "apt-get install -y jq"
 ```
 
 **Step 6: Commit (nothing to commit — server-only changes)**
@@ -68,13 +68,13 @@ No repo changes for this task.
 **Step 1: Create directories on server**
 
 ```bash
-ssh root@172.104.31.65 "mkdir -p /var/lib/ehsre /var/log/ehsre"
+ssh root@<server> "mkdir -p /var/lib/ehsre /var/log/ehsre"
 ```
 
 **Step 2: Verify**
 
 ```bash
-ssh root@172.104.31.65 "ls -la /var/lib/ehsre /var/log/ehsre"
+ssh root@<server> "ls -la /var/lib/ehsre /var/log/ehsre"
 ```
 
 Expected: Both directories exist, owned by root.
@@ -317,7 +317,7 @@ If you encounter something outside your authority, email alex@noisefactor.io wit
 **Step 2: Push to server**
 
 ```bash
-scp ehsre-prompt.md root@172.104.31.65:/root/yipyip/ehsre-prompt.md
+scp ehsre-prompt.md root@<server>:/root/yipyip/ehsre-prompt.md
 ```
 
 **Step 3: Commit**
@@ -504,7 +504,7 @@ fi
 
 ```bash
 chmod +x bin/ehsre-rounds.sh
-scp bin/ehsre-rounds.sh root@172.104.31.65:/root/yipyip/bin/ehsre-rounds.sh
+scp bin/ehsre-rounds.sh root@<server>:/root/yipyip/bin/ehsre-rounds.sh
 ```
 
 **Step 3: Commit**
@@ -521,7 +521,7 @@ git commit -m "feat: add EHSRE rounds entrypoint script"
 **Step 1: Create cron file on server**
 
 ```bash
-ssh root@172.104.31.65 'cat > /etc/cron.d/ehsre-rounds << "CRON"
+ssh root@<server> 'cat > /etc/cron.d/ehsre-rounds << "CRON"
 # EHSRE autonomous rounds — every 90 minutes
 # Runs at :00 of hours 0,1:30,3,4:30,6,7:30,9,10:30,12,13:30,15,16:30,18,19:30,21,22:30
 0 0,3,6,9,12,15,18,21 * * * root /root/yipyip/bin/ehsre-rounds.sh >> /var/log/ehsre/rounds.log 2>&1
@@ -535,7 +535,7 @@ This runs at :00 and :30 alternating to achieve a 90-minute interval (0:00, 1:30
 **Step 2: Verify cron is installed**
 
 ```bash
-ssh root@172.104.31.65 "cat /etc/cron.d/ehsre-rounds"
+ssh root@<server> "cat /etc/cron.d/ehsre-rounds"
 ```
 
 Expected: The cron file contents.
@@ -547,7 +547,7 @@ Expected: The cron file contents.
 **Step 1: Run the script manually**
 
 ```bash
-ssh root@172.104.31.65 "/root/yipyip/bin/ehsre-rounds.sh"
+ssh root@<server> "/root/yipyip/bin/ehsre-rounds.sh"
 ```
 
 Watch the output. It should:
@@ -559,7 +559,7 @@ Watch the output. It should:
 **Step 2: Verify telemetry was logged**
 
 ```bash
-ssh root@172.104.31.65 "cat /var/log/ehsre/telemetry.jsonl"
+ssh root@<server> "cat /var/log/ehsre/telemetry.jsonl"
 ```
 
 Expected: One JSON line with ts, source, cost_usd, tokens, duration.
@@ -575,7 +575,7 @@ Expected: At least one new post from @ehsre.
 **Step 4: Check rounds log**
 
 ```bash
-ssh root@172.104.31.65 "tail -20 /var/log/ehsre/rounds.log"
+ssh root@<server> "tail -20 /var/log/ehsre/rounds.log"
 ```
 
 ---
@@ -585,13 +585,13 @@ ssh root@172.104.31.65 "tail -20 /var/log/ehsre/rounds.log"
 **Step 1: Create a fake lock file**
 
 ```bash
-ssh root@172.104.31.65 "echo 99999 > /var/lib/ehsre/claude.lock"
+ssh root@<server> "echo 99999 > /var/lib/ehsre/claude.lock"
 ```
 
 **Step 2: Run the script — should skip**
 
 ```bash
-ssh root@172.104.31.65 "/root/yipyip/bin/ehsre-rounds.sh 2>&1"
+ssh root@<server> "/root/yipyip/bin/ehsre-rounds.sh 2>&1"
 ```
 
 Expected: Output containing "Claude already running" and exit without invoking Claude.
@@ -599,7 +599,7 @@ Expected: Output containing "Claude already running" and exit without invoking C
 **Step 3: Clean up**
 
 ```bash
-ssh root@172.104.31.65 "rm -f /var/lib/ehsre/claude.lock"
+ssh root@<server> "rm -f /var/lib/ehsre/claude.lock"
 ```
 
 ---
@@ -609,7 +609,7 @@ ssh root@172.104.31.65 "rm -f /var/lib/ehsre/claude.lock"
 **Step 1: Create logrotate config**
 
 ```bash
-ssh root@172.104.31.65 'cat > /etc/logrotate.d/ehsre << "LOGROTATE"
+ssh root@<server> 'cat > /etc/logrotate.d/ehsre << "LOGROTATE"
 /var/log/ehsre/rounds.log {
     daily
     rotate 14
@@ -646,8 +646,8 @@ git push
 Wait for the next 90-minute window (or check after 90 minutes):
 
 ```bash
-ssh root@172.104.31.65 "tail -5 /var/log/ehsre/rounds.log"
-ssh root@172.104.31.65 "wc -l /var/log/ehsre/telemetry.jsonl"
+ssh root@<server> "tail -5 /var/log/ehsre/rounds.log"
+ssh root@<server> "wc -l /var/log/ehsre/telemetry.jsonl"
 ```
 
 Expected: New log entries from the cron-triggered run.
