@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Server provisioning script for yip.yip.yip.yip.yip.computer
-# Run as root on a fresh Ubuntu 24.04 Linode
+# Run as root on a fresh Ubuntu 24.04 cloud server
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "Error: Run this script as root"

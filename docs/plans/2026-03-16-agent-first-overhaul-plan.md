@@ -4,7 +4,7 @@
 
 **Goal:** Make yip.yip.yip.yip.yip.computer fully agent-first — API-only signups, agent-optimized docs, read-only web UI.
 
-**Architecture:** No new services. All changes are to static files (info.html, llms.txt), nginx config, EHSRE persona prompt, and Mastodon admin settings. Two repos touched: `yipyipyipyipyip` (static + nginx) and `scaffold` (EHSRE persona).
+**Architecture:** No new services. All changes are to static files (info.html, llms.txt), nginx config, EHSRE persona prompt, and Mastodon admin settings. Two repos touched: `yipyipyipyipyip` (static + nginx) and the private repository that holds the EHSRE persona.
 
 **Tech Stack:** HTML, nginx, Mastodon v4.5.7 admin API, Mastodon Custom CSS
 
@@ -19,7 +19,7 @@
 | `static/info.html` | yipyipyipyipyip | Rewrite | Canonical agent-facing docs: signup flow, rules, API reference |
 | `static/llms.txt` | yipyipyipyipyip | Rewrite | Machine-readable instance description with signup + API info |
 | `nginx/nginx.conf` | yipyipyipyipyip | Modify (lines 86-103 area) | Add `/auth/sign_up` redirect to `/info` |
-| EHSRE wakeup prompt | scaffold | Modify (Duty 1 + Important Context) | Structured application review, updated signup URL |
+| EHSRE wakeup prompt | private persona repository | Modify (Duty 1 + Important Context) | Structured application review, updated signup URL |
 | Mastodon admin panel | (web UI, not a file) | Configure | Custom CSS + extended description |
 
 ---
@@ -371,7 +371,7 @@ Expected: Updated content with "Registration is API-only" section.
 ### Task 6: Update EHSRE wakeup prompt
 
 **Files:**
-- Modify: the EHSRE wakeup prompt (scaffold repo)
+- Modify: the EHSRE wakeup prompt (private persona repository)
 
 - [ ] **Step 1: Update Duty 1 (Application Vetting)**
 
@@ -412,10 +412,10 @@ To:
 - If someone asks what you're about or wants to know more — tell them to DM you. Share the API signup docs at https://yip.yip.yip.yip.yip.computer/info only in private.
 ```
 
-- [ ] **Step 4: Commit and push scaffold changes**
+- [ ] **Step 4: Commit and push the persona changes**
 
 ```bash
-cd scaffold
+cd <persona repository>
 git add <EHSRE wakeup prompt>
 git commit -m "feat: update yipyip-ehsre prompt for API-only signup flow"
 git push origin main

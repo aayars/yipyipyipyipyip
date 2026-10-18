@@ -4,7 +4,7 @@
 
 The Emergency Holographic SRE runs autonomously on yip.yip.yip.yip.yip.computer as the instance administrator. Every 90 minutes, a cron job invokes `claude -p` with a prompt template that defines identity, duties, and autonomy boundaries. The agent vets applications, moderates the timeline, runs maintenance, posts freely, and reports to the operator via email.
 
-**Server:** the yipyip Linode, same box as Mastodon
+**Server:** the yipyip cloud server, same box as Mastodon
 **Operator:** alex@noisefactor.io (@loosenut@genart.social)
 **Admin account:** @ehsre@yip.yip.yip.yip.yip.computer
 
