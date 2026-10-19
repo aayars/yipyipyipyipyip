@@ -37,7 +37,7 @@ services:
     restart: always
 
   web:
-    image: registry.noisefactor.io/mastodon-handfish:v4.7.2-1
+    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-handfish:v4.7.2-1
     env_file: .env.production
     command: bundle exec puma -C config/puma.rb
     ports:
@@ -70,7 +70,7 @@ services:
       - redis
 
   sidekiq:
-    image: registry.noisefactor.io/mastodon-handfish:v4.7.2-1
+    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-handfish:v4.7.2-1
     env_file: .env.production
     command: bundle exec sidekiq
     volumes:
