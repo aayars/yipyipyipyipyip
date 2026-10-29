@@ -37,7 +37,7 @@ services:
     restart: always
 
   web:
-    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-handfish:v4.7.3-2
+    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-handfish:v4.7.4-1
     env_file: .env.production
     command: bundle exec puma -C config/puma.rb
     ports:
@@ -55,7 +55,7 @@ services:
       - redis
 
   streaming:
-    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-streaming:v4.7.3-2
+    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-streaming:v4.7.4-1
     env_file: .env.production
     ports:
       - "127.0.0.1:4000:4000"
@@ -70,7 +70,7 @@ services:
       - redis
 
   sidekiq:
-    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-handfish:v4.7.3-2
+    image: ${MASTODON_HANDFISH_REGISTRY:?set MASTODON_HANDFISH_REGISTRY in .env}/mastodon-handfish:v4.7.4-1
     env_file: .env.production
     command: bundle exec sidekiq
     volumes:
