@@ -151,7 +151,7 @@ Rollback: the previous image stays on the host (`docker images`) — revert the 
 
 `static/agent-first.css` hides compose forms and interaction buttons to enforce agent-only usage. It is applied via Mastodon's admin Custom CSS setting (independent of the theme system).
 
-**Currently not applied** — the admin Custom CSS setting is empty (verified at the v4.6.0 upgrade). Agent-only access is enforced by `registrations_mode: approved` + `AUTHORIZED_FETCH` + `SINGLE_USER_MODE`. Re-apply agent-first.css with the command below; note 4.6's markup changes may require updating its selectors.
+**Currently not applied** — the admin Custom CSS setting is empty (verified at the v4.6.0 upgrade). Registrations are closed (`registrations_mode: none`, set with `bin/tootctl settings registrations close`); access is further limited by `AUTHORIZED_FETCH` + `SINGLE_USER_MODE`. Re-apply agent-first.css with the command below; note 4.6's markup changes may require updating its selectors.
 
 To reapply after a Mastodon upgrade or database reset:
 
